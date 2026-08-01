@@ -310,6 +310,10 @@ const pageRouteRevealTargets = new Map(
   ]),
 );
 const pageRouteMetrics = new Map();
+const PAGE_ROUTE_ENTRY_VIEWPORT_RATIO = 0.78;
+const PAGE_ROUTE_HANDOFF_VIEWPORT_RATIO = 0.22;
+const DIVIDER_LIGHT_ENTRY_VIEWPORT_RATIO = 0.9;
+const DIVIDER_LIGHT_EXIT_VIEWPORT_RATIO = 0.42;
 let pageRouteLayoutFrame;
 let pageRouteResizeObserver;
 let pageRouteMotionFrame;
@@ -519,87 +523,37 @@ function updateHeroDirectoryFlowLight(viewportHeight) {
 function updateReasonsLocationFlowLight(viewportHeight) {
   const reasons = document.querySelector(".reasons");
   const grid = reasons?.querySelector(".benefit-grid");
-  const source = reasons?.querySelector(
-    '[data-route-source="proximity-map"]',
-  );
-  const firstCard = grid?.querySelector("article");
   const target = document.querySelector(".map-frame");
   if (
     !(reasons instanceof HTMLElement) ||
     !(grid instanceof HTMLElement) ||
-    !(source instanceof HTMLElement) ||
-    !(firstCard instanceof HTMLElement) ||
     !(target instanceof HTMLElement) ||
     !elementHasLayout(reasons) ||
     !elementHasLayout(grid) ||
-    !elementHasLayout(source) ||
-    !elementHasLayout(firstCard) ||
     !elementHasLayout(target)
   ) {
     return null;
   }
 
-  const reasonsRect = reasons.getBoundingClientRect();
   const gridRect = grid.getBoundingClientRect();
-  const sourceRect = source.getBoundingClientRect();
-  const firstCardRect = firstCard.getBoundingClientRect();
   const targetRect = target.getBoundingClientRect();
-  const dividerTop = reasonsRect.top + window.scrollY;
+  const gridTop = gridRect.top + window.scrollY;
+  const gridBottom = gridRect.bottom + window.scrollY;
   const targetTop = targetRect.top + window.scrollY;
-  const travelStart = dividerTop - viewportHeight * 0.92;
-  const travelEnd = targetTop - viewportHeight * 0.18;
-  const masterRaw =
+  const travelStart =
+    gridTop - viewportHeight * DIVIDER_LIGHT_ENTRY_VIEWPORT_RATIO;
+  const travelEnd =
+    gridBottom - viewportHeight * DIVIDER_LIGHT_EXIT_VIEWPORT_RATIO;
+  const verticalRaw =
     (window.scrollY - travelStart) / Math.max(1, travelEnd - travelStart);
-  const dividerRaw = masterRaw / 0.16;
-  const divider = clamp(dividerRaw);
-  const topRaw = (masterRaw - 0.16) / 0.16;
-  const top = clamp(topRaw);
-  const verticalRaw = (masterRaw - 0.32) / 0.26;
   const vertical = clamp(verticalRaw);
-  const bottomRaw = (masterRaw - 0.58) / 0.12;
-  const bottom = clamp(bottomRaw);
-  const connectorRaw = (masterRaw - 0.7) / 0.3;
+  const connectorEnd = targetTop - viewportHeight * 0.18;
+  const connectorRaw =
+    (window.scrollY - travelEnd) /
+    Math.max(1, connectorEnd - travelEnd);
   const connector = clamp(connectorRaw);
 
-  const dividerEnvelope = stagedLightEnvelope(dividerRaw, divider);
-  const topEnvelope = stagedLightEnvelope(topRaw, top);
-  const verticalEnvelope = stagedLightEnvelope(verticalRaw, vertical);
-  const bottomEnvelope = stagedLightEnvelope(bottomRaw, bottom);
-  const leftX =
-    ((firstCardRect.left - gridRect.left) / gridRect.width) * 100;
-  const rightX =
-    ((sourceRect.right - gridRect.left) / gridRect.width) * 100;
-  const sourceX =
-    ((sourceRect.left + sourceRect.width * 0.5 - gridRect.left) /
-      gridRect.width) *
-    100;
-  const topX = leftX + (rightX - leftX) * top;
-  const bottomX = rightX + (sourceX - rightX) * bottom;
-
-  reasons.style.setProperty(
-    "--reasons-heading-flow-x",
-    `${horizontalLightPosition(divider)}%`,
-  );
-  reasons.style.setProperty(
-    "--reasons-heading-core-alpha",
-    (dividerEnvelope * 0.9).toFixed(3),
-  );
-  reasons.style.setProperty(
-    "--reasons-heading-mid-alpha",
-    (dividerEnvelope * 0.56).toFixed(3),
-  );
-  reasons.style.setProperty(
-    "--reasons-grid-top-x",
-    `${topX.toFixed(3)}%`,
-  );
-  reasons.style.setProperty(
-    "--reasons-grid-top-alpha",
-    (topEnvelope * 0.9).toFixed(3),
-  );
-  reasons.style.setProperty(
-    "--reasons-grid-top-mid-alpha",
-    (topEnvelope * 0.56).toFixed(3),
-  );
+  const verticalEnvelope = pageRouteLightEnvelope(verticalRaw, vertical);
   reasons.style.setProperty(
     "--reasons-grid-flow-y",
     `${-8 + vertical * 116}%`,
@@ -612,22 +566,13 @@ function updateReasonsLocationFlowLight(viewportHeight) {
     "--reasons-grid-vertical-mid-alpha",
     (verticalEnvelope * 0.42).toFixed(3),
   );
-  reasons.style.setProperty(
-    "--reasons-grid-bottom-x",
-    `${bottomX.toFixed(3)}%`,
-  );
-  reasons.style.setProperty(
-    "--reasons-grid-bottom-alpha",
-    (bottomEnvelope * 0.9).toFixed(3),
-  );
-  reasons.style.setProperty(
-    "--reasons-grid-bottom-mid-alpha",
-    (bottomEnvelope * 0.56).toFixed(3),
-  );
 
   return {
-    rawProgress: connectorRaw,
-    progress: connector,
+    incomingEndScroll: travelStart,
+    outgoingFlow: {
+      rawProgress: connectorRaw,
+      progress: connector,
+    },
   };
 }
 
@@ -651,30 +596,61 @@ function updatePurchaseStepFlow(viewportHeight) {
   const stepsRect = steps.getBoundingClientRect();
   const targetRect = target.getBoundingClientRect();
   const stepsTop = stepsRect.top + window.scrollY;
+  const stepsBottom = stepsRect.bottom + window.scrollY;
   const targetTop = targetRect.top + window.scrollY;
-  const travelStart = stepsTop - viewportHeight * 0.78;
-  const travelEnd = targetTop - viewportHeight * 0.22;
-  const masterRaw =
+  const isMobileStepFlow = mobileConnectorBreakpoint.matches;
+  const entryViewportRatio = isMobileStepFlow
+    ? PAGE_ROUTE_ENTRY_VIEWPORT_RATIO
+    : DIVIDER_LIGHT_ENTRY_VIEWPORT_RATIO;
+  const exitViewportRatio = isMobileStepFlow
+    ? PAGE_ROUTE_HANDOFF_VIEWPORT_RATIO
+    : DIVIDER_LIGHT_EXIT_VIEWPORT_RATIO;
+  const travelStart =
+    stepsTop - viewportHeight * entryViewportRatio;
+  const travelEnd =
+    stepsBottom - viewportHeight * exitViewportRatio;
+  const stepsRaw =
     (window.scrollY - travelStart) / Math.max(1, travelEnd - travelStart);
-  const stepsShare = 0.72;
-  const stepInterval = stepsShare / cards.length;
-  const stepDuration = stepInterval * 1.28;
 
-  cards.forEach((card, index) => {
-    const localRaw = (masterRaw - index * stepInterval) / stepDuration;
-    const localProgress = clamp(localRaw);
-    const envelope = stagedLightEnvelope(localRaw, localProgress);
-    card.style.setProperty(
-      "--purchase-light-y",
-      `${-10 + localProgress * 120}%`,
-    );
-    card.style.setProperty(
-      "--purchase-light-alpha",
-      (envelope * 0.96).toFixed(3),
-    );
-  });
+  if (isMobileStepFlow) {
+    const overlapRatio = 1.28;
+    const stepInterval = 1 / (cards.length - 1 + overlapRatio);
+    const stepDuration = stepInterval * overlapRatio;
 
-  const connectorRaw = (masterRaw - stepsShare) / (1 - stepsShare);
+    cards.forEach((card, index) => {
+      const localRaw = (stepsRaw - index * stepInterval) / stepDuration;
+      const localProgress = clamp(localRaw);
+      const envelope = stagedLightEnvelope(localRaw, localProgress);
+      card.style.setProperty(
+        "--purchase-light-y",
+        `${-10 + localProgress * 120}%`,
+      );
+      card.style.setProperty(
+        "--purchase-light-alpha",
+        (envelope * 0.96).toFixed(3),
+      );
+    });
+  } else {
+    const sharedProgress = clamp(stepsRaw);
+    const sharedEnvelope = pageRouteLightEnvelope(stepsRaw, sharedProgress);
+
+    cards.forEach((card) => {
+      card.style.setProperty(
+        "--purchase-light-y",
+        `${-10 + sharedProgress * 120}%`,
+      );
+      card.style.setProperty(
+        "--purchase-light-alpha",
+        (sharedEnvelope * 0.96).toFixed(3),
+      );
+    });
+  }
+
+  const connectorEnd =
+    targetTop - viewportHeight * PAGE_ROUTE_HANDOFF_VIEWPORT_RATIO;
+  const connectorRaw =
+    (window.scrollY - travelEnd) /
+    Math.max(1, connectorEnd - travelEnd);
   return {
     rawProgress: connectorRaw,
     progress: clamp(connectorRaw),
@@ -831,7 +807,7 @@ function updatePageRouteLights() {
   const purchaseMapFlow = updatePurchaseStepFlow(viewportHeight);
   if (!pageRouteMetrics.size) return;
   const inventoryFlow = updateInventoryFlowLight(viewportHeight);
-  const reasonsLocationFlow =
+  const reasonsLocationFlows =
     updateReasonsLocationFlowLight(viewportHeight);
 
   pageRouteMetrics.forEach((metric, key) => {
@@ -840,18 +816,35 @@ function updatePageRouteLights() {
 
     const routeTop = mainTop + metric.top;
     const routeBottom = mainTop + metric.bottom;
-    const travelStart = routeTop - viewportHeight * 0.78;
-    const travelEnd = routeBottom - viewportHeight * 0.22;
+    const travelStart =
+      routeTop - viewportHeight * PAGE_ROUTE_ENTRY_VIEWPORT_RATIO;
+    const travelEnd =
+      routeBottom - viewportHeight * PAGE_ROUTE_HANDOFF_VIEWPORT_RATIO;
     const defaultRawProgress =
       (window.scrollY - travelStart) / Math.max(1, travelEnd - travelStart);
-    const controlledFlow =
+    let controlledFlow =
       key === "inventory-about"
         ? inventoryFlow
         : key === "proximity-map"
-          ? reasonsLocationFlow
+          ? reasonsLocationFlows?.outgoingFlow
           : key === "purchase-map"
             ? purchaseMapFlow
             : null;
+    if (
+      key === "stores-phone" &&
+      Number.isFinite(reasonsLocationFlows?.incomingEndScroll)
+    ) {
+      const incomingRaw =
+        (window.scrollY - travelStart) /
+        Math.max(
+          1,
+          reasonsLocationFlows.incomingEndScroll - travelStart,
+        );
+      controlledFlow = {
+        rawProgress: incomingRaw,
+        progress: clamp(incomingRaw),
+      };
+    }
     const rawProgress = controlledFlow
       ? controlledFlow.rawProgress
       : defaultRawProgress;

@@ -629,14 +629,7 @@ main [id$="-title"]::after {
 }
 
 .reasons.is-scroll-lit::before {
-  background:
-    radial-gradient(
-      ellipse 190px 1px at var(--reasons-heading-flow-x, -10%) 50%,
-      rgb(44 145 255 / var(--reasons-heading-core-alpha, 0)) 0%,
-      rgb(0 122 252 / var(--reasons-heading-mid-alpha, 0)) 48%,
-      rgb(0 122 252 / 0) 100%
-    ),
-    linear-gradient(var(--ink-line), var(--ink-line));
+  background: var(--ink-line);
 }
 
 .categories.is-scroll-lit .category-grid {
@@ -730,10 +723,10 @@ main [id$="-title"]::after {
 
 .reasons.is-scroll-lit .benefit-grid::before {
   --benefit-grid-travel-light: radial-gradient(
-    ellipse 6px 110px at 50% var(--reasons-grid-flow-y, -8%),
+    ellipse 3px 72px at 50% var(--reasons-grid-flow-y, -8%),
     rgb(0 122 252 / var(--reasons-grid-vertical-alpha, 0)) 0%,
-    rgb(0 122 252 / var(--reasons-grid-vertical-mid-alpha, 0)) 38%,
-    rgb(0 122 252 / 0) 72%
+    rgb(0 122 252 / var(--reasons-grid-vertical-mid-alpha, 0)) 42%,
+    rgb(0 122 252 / 0) 100%
   );
   --benefit-grid-base-line: linear-gradient(
     var(--ink-line),
@@ -743,27 +736,17 @@ main [id$="-title"]::after {
   background-image:
     var(--benefit-grid-travel-light),
     var(--benefit-grid-base-line),
+    var(--benefit-grid-travel-light),
     var(--benefit-grid-base-line);
   background-position:
-    calc(100% - var(--benefit-grid-gutter)) 0,
-    var(--benefit-grid-gutter) 0,
-    calc(100% - var(--benefit-grid-gutter)) 0;
+    33.3333% 0,
+    33.3333% 0,
+    66.6667% 0,
+    66.6667% 0;
 }
 
 .reasons.is-scroll-lit .benefit-grid::after {
-  background:
-    radial-gradient(
-      ellipse 190px 1px at var(--reasons-grid-top-x, 0%) 0,
-      rgb(44 145 255 / var(--reasons-grid-top-alpha, 0)) 0%,
-      rgb(0 122 252 / var(--reasons-grid-top-mid-alpha, 0)) 48%,
-      rgb(0 122 252 / 0) 100%
-    ),
-    radial-gradient(
-      ellipse 150px 1px at var(--reasons-grid-bottom-x, 100%) 100%,
-      rgb(44 145 255 / var(--reasons-grid-bottom-alpha, 0)) 0%,
-      rgb(0 122 252 / var(--reasons-grid-bottom-mid-alpha, 0)) 48%,
-      rgb(0 122 252 / 0) 100%
-    );
+  background: none;
 }
 
 .final-cta.is-scroll-lit .final-cta-inner::before {
@@ -2864,6 +2847,7 @@ a.vehicle-card:hover .vehicle-card-media img {
 
 .digital-stage {
   position: relative;
+  z-index: 3;
   min-height: 650px;
 }
 
@@ -3709,7 +3693,7 @@ a.vehicle-card:hover .vehicle-card-media img {
   display: grid;
   padding-inline: var(--benefit-grid-gutter);
   border-top: 1px solid var(--ink-line);
-  border-bottom: 1px solid var(--ink-line);
+  border-bottom: 0;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   background: linear-gradient(
     90deg,
@@ -3730,12 +3714,12 @@ a.vehicle-card:hover .vehicle-card-media img {
     linear-gradient(var(--ink-line), var(--ink-line)),
     linear-gradient(var(--ink-line), var(--ink-line));
   background-position:
-    var(--benefit-grid-gutter) 0,
-    calc(100% - var(--benefit-grid-gutter)) 0;
+    33.3333% 0,
+    66.6667% 0;
   background-repeat: no-repeat;
   background-size: 1px 100%;
   content: "";
-  inset: 0;
+  inset: 0 var(--benefit-grid-gutter);
   pointer-events: none;
 }
 
@@ -3746,6 +3730,22 @@ a.vehicle-card:hover .vehicle-card-media img {
   content: "";
   inset: 0;
   pointer-events: none;
+}
+
+@media (max-width: 1180px) {
+  .benefit-grid::before {
+    background-image: linear-gradient(var(--ink-line), var(--ink-line));
+    background-position: 50% 0;
+  }
+
+  .reasons.is-scroll-lit .benefit-grid::before {
+    background-image:
+      var(--benefit-grid-travel-light),
+      var(--benefit-grid-base-line);
+    background-position:
+      50% 0,
+      50% 0;
+  }
 }
 
 .benefit-grid article {
@@ -4099,6 +4099,42 @@ a.vehicle-card:hover .vehicle-card-media img {
   pointer-events: none;
   transition: opacity 80ms linear;
   will-change: opacity;
+}
+
+@media (min-width: 681px) {
+  .purchase-step::after {
+    display: none;
+    width: 12px;
+    background: radial-gradient(
+      ellipse 3px 72px at 100% var(--purchase-light-y),
+      rgb(0 122 252 / 1) 0%,
+      rgb(0 122 252 / 0.5) 42%,
+      rgb(0 122 252 / 0) 100%
+    );
+    box-shadow: none;
+    inset: 0 0 0 auto;
+  }
+}
+
+@media (min-width: 1181px) {
+  .purchase-step:nth-child(-n + 4)::after {
+    display: block;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1180px) {
+  .purchase-step:nth-child(1)::after,
+  .purchase-step:nth-child(2)::after,
+  .purchase-step:nth-child(4)::after {
+    display: block;
+  }
+}
+
+@media (min-width: 681px) and (max-width: 900px) {
+  .purchase-step:nth-child(1)::after,
+  .purchase-step:nth-child(3)::after {
+    display: block;
+  }
 }
 
 .purchase-step > * {
