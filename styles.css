@@ -4802,8 +4802,9 @@ a.vehicle-card:hover .vehicle-card-media img {
   .mobile-language-toggle {
     position: fixed;
     z-index: 3;
-    right: calc(16px + env(safe-area-inset-right, 0px));
+    right: auto;
     bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    left: calc(16px + env(safe-area-inset-left, 0px));
     display: inline-flex;
     min-width: 76px;
     height: 48px;
