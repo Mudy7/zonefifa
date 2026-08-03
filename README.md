@@ -13,4 +13,6 @@ python3 -m http.server 8080
 Then open [http://localhost:8080](http://localhost:8080).
 
 The production site loads its public vehicle inventory from AfricaCars. A local
-preview can use the AfricaCars development endpoint on port `4000`.
+preview first tries the AfricaCars development endpoint on port `4000`, then
+falls back automatically to the public endpoint if the local service is not
+available.

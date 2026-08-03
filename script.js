@@ -1366,9 +1366,18 @@ document.fonts?.ready.then(requestInitialMotionSync);
 
 const AFRICACARS_ORIGIN = "https://africacars.bj";
 const isLocalPreview = ["localhost", "127.0.0.1"].includes(window.location.hostname);
-const INVENTORY_ENDPOINT = isLocalPreview
-  ? "http://localhost:4000/zone-fifa-inventory?limit=8&source=production"
-  : `${AFRICACARS_ORIGIN}/zone-fifa-inventory?limit=8`;
+const INVENTORY_CANDIDATE_LIMIT = 12;
+const INVENTORY_DISPLAY_LIMIT = 8;
+const PUBLIC_INVENTORY_ENDPOINT =
+  `${AFRICACARS_ORIGIN}/zone-fifa-inventory?limit=${INVENTORY_CANDIDATE_LIMIT}`;
+const INVENTORY_ENDPOINTS = isLocalPreview
+  ? [
+      `http://localhost:4000/zone-fifa-inventory?limit=${INVENTORY_CANDIDATE_LIMIT}&source=production`,
+      PUBLIC_INVENTORY_ENDPOINT,
+    ]
+  : [PUBLIC_INVENTORY_ENDPOINT];
+const LOCAL_INVENTORY_TIMEOUT_MS = 3000;
+const PUBLIC_INVENTORY_TIMEOUT_MS = 10000;
 const inventoryGrid = document.querySelector("[data-vehicle-grid]");
 const inventoryError = document.querySelector("[data-inventory-error]");
 const inventoryRetry = document.querySelector("[data-inventory-retry]");
@@ -1491,20 +1500,18 @@ function vehicleTitle(vehicle) {
   );
 }
 
-function formatPrice(value) {
+function positivePrice(value) {
   const price = Number(value);
-  if (!Number.isFinite(price) || price <= 0) {
-    return localizedText("Prix sur demande", "Price on request");
+  return Number.isFinite(price) && price > 0 ? price : null;
+}
+
+function formatPrice(value) {
+  const price = positivePrice(value);
+  if (price === null) {
+    return localizedText("Prix sur contact", "Contact for price");
   }
   const locale = currentLanguage() === "en" ? "en-GB" : "fr-FR";
   return `${new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(price)} F CFA`;
-}
-
-function formatMileage(value) {
-  const mileage = Number(value);
-  if (!Number.isFinite(mileage) || mileage < 0) return "—";
-  const locale = currentLanguage() === "en" ? "en-GB" : "fr-FR";
-  return `${new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(mileage)} km`;
 }
 
 function formatTransmission(value) {
@@ -1582,21 +1589,12 @@ function createVehicleCard(vehicle) {
   const titleGroup = createElement("span", "vehicle-card-title");
   titleGroup.append(createElement("h3", "", title));
 
-  const meta = createElement("span", "vehicle-card-meta");
-  const mileage = createElement("span");
-  const mileageIcon = document.createElement("img");
-  mileageIcon.src = "assets/icons/speedometer.svg";
-  mileageIcon.alt = "";
-  mileageIcon.width = 16;
-  mileageIcon.height = 16;
-  mileage.append(mileageIcon, document.createTextNode(formatMileage(vehicle?.mileage)));
-  meta.append(mileage);
-
   const transmission = formatTransmission(vehicle?.transmission);
   if (transmission) {
+    const meta = createElement("span", "vehicle-card-meta");
     meta.append(createElement("span", "", transmission));
+    titleGroup.append(meta);
   }
-  titleGroup.append(meta);
 
   const footer = createElement("span", "vehicle-card-footer");
   const trim = String(vehicle?.trim || "").trim();
@@ -1639,7 +1637,11 @@ function normalizeInventoryPayload(payload) {
     : Array.isArray(payload?.items)
       ? payload.items
       : [];
-  const vehicles = rawVehicles.filter(isGenuineInventoryVehicle).slice(0, 8);
+  const genuineVehicles = rawVehicles.filter(isGenuineInventoryVehicle);
+  const vehicles = [
+    ...genuineVehicles.filter((vehicle) => positivePrice(vehicle?.price) !== null),
+    ...genuineVehicles.filter((vehicle) => positivePrice(vehicle?.price) === null),
+  ].slice(0, INVENTORY_DISPLAY_LIMIT);
   return { vehicles };
 }
 
@@ -1658,12 +1660,55 @@ function renderInventoryVehicles(vehicles) {
   cards.forEach(observeReveal);
 }
 
+async function fetchInventoryPayload(controller) {
+  let lastError;
+
+  for (const [index, endpoint] of INVENTORY_ENDPOINTS.entries()) {
+    if (controller.signal.aborted) {
+      throw new DOMException("Inventory request aborted", "AbortError");
+    }
+
+    const attemptController = new AbortController();
+    const abortAttempt = () => attemptController.abort();
+    const timeoutMs =
+      isLocalPreview && index === 0
+        ? LOCAL_INVENTORY_TIMEOUT_MS
+        : PUBLIC_INVENTORY_TIMEOUT_MS;
+    const timeoutId = window.setTimeout(() => attemptController.abort(), timeoutMs);
+    controller.signal.addEventListener("abort", abortAttempt, { once: true });
+
+    try {
+      const response = await fetch(endpoint, {
+        method: "GET",
+        headers: { Accept: "application/json" },
+        credentials: "omit",
+        mode: "cors",
+        signal: attemptController.signal,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Inventory request failed (${response.status})`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      if (controller.signal.aborted) throw error;
+      lastError = error;
+    } finally {
+      window.clearTimeout(timeoutId);
+      controller.signal.removeEventListener("abort", abortAttempt);
+    }
+  }
+
+  throw lastError || new Error("Inventory request failed");
+}
+
 async function loadInventory() {
   if (!inventoryGrid) return;
 
   inventoryController?.abort();
-  inventoryController = new AbortController();
-  const timeoutId = window.setTimeout(() => inventoryController.abort(), 10000);
+  const controller = new AbortController();
+  inventoryController = controller;
 
   inventoryError?.setAttribute("hidden", "");
   inventoryGrid.hidden = false;
@@ -1671,17 +1716,9 @@ async function loadInventory() {
   renderInventorySkeletons();
 
   try {
-    const response = await fetch(INVENTORY_ENDPOINT, {
-      method: "GET",
-      headers: { Accept: "application/json" },
-      credentials: "omit",
-      mode: "cors",
-      signal: inventoryController.signal,
-    });
-
-    if (!response.ok) throw new Error(`Inventory request failed (${response.status})`);
-
-    const { vehicles } = normalizeInventoryPayload(await response.json());
+    const { vehicles } = normalizeInventoryPayload(
+      await fetchInventoryPayload(controller),
+    );
     inventoryVehicles = vehicles;
 
     if (!vehicles.length) {
@@ -1712,6 +1749,8 @@ async function loadInventory() {
 
     renderInventoryVehicles(vehicles);
   } catch (error) {
+    if (inventoryController !== controller) return;
+
     if (error?.name === "AbortError") {
       console.warn("Le chargement de l’inventaire AfricaCars a expiré.");
     } else {
@@ -1721,8 +1760,9 @@ async function loadInventory() {
     inventoryGrid.hidden = true;
     inventoryError?.removeAttribute("hidden");
   } finally {
-    window.clearTimeout(timeoutId);
-    inventoryGrid.setAttribute("aria-busy", "false");
+    if (inventoryController === controller) {
+      inventoryGrid.setAttribute("aria-busy", "false");
+    }
   }
 }
 

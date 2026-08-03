@@ -151,8 +151,8 @@
     ],
     ["Exportez ou immatriculez", "Export or register"],
     [
-      "Pour l’export, suivez les formalités de transit ou de réexportation ; l’immatriculation définitive se fait à destination. Pour le Bénin, transférez la carte grise ou terminez dédouanement, inspection ANaTT, immatriculation et assurance.",
-      "For export, complete the transit or re-export formalities; permanent registration takes place at the destination. For Benin, transfer the registration or complete customs clearance, ANaTT inspection, registration and insurance.",
+      "Pour l’export ou l’immatriculation au Bénin, préparez simplement les documents nécessaires avec le vendeur.",
+      "For export or registration in Benin, simply prepare the required documents with the seller.",
     ],
     ["Trouvez, filtrez, scannez.", "Find, filter, scan."],
     [
@@ -166,7 +166,7 @@
     ["Année⌄", "Year⌄"],
     ["Véhicules à vendre", "Vehicles for sale"],
     ["Plus récentes⌄", "Newest⌄"],
-    ["Prix sur demande", "Price on request"],
+    ["Prix sur contact", "Contact for price"],
     ["Automatique", "Automatic"],
     ["Manuelle", "Manual"],
     ["Essence", "Petrol"],
@@ -182,7 +182,7 @@
     ["Prix en baisse", "Price reduced"],
     ["Au parc", "At the park"],
     ["Scannez le QR code", "Scan the QR code"],
-    ["La fiche du véhicule s’ouvre immédiatement.", "The vehicle page opens immediately."],
+    ["La page du véhicule s’ouvre immédiatement.", "The vehicle page opens immediately."],
     ["Emplacement du véhicule", "Vehicle location"],
     ["Pourquoi Zone FIFA ?", "Why Zone FIFA?"],
     [
