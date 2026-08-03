@@ -51,7 +51,6 @@
     ["Véhicules variés", "A wide vehicle selection"],
     ["Achat sur place", "Buy on site"],
     ["Fiches avec QR code", "Vehicle pages with QR codes"],
-    ["Commencer", "Get started"],
     ["Plusieurs vendeurs réunis", "Multiple sellers in one place"],
     ["Comparaison facile", "Easy comparison"],
     ["Qualité et confiance", "Quality and trust"],

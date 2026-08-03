@@ -1205,6 +1205,17 @@ p {
   transform: rotate(180deg);
 }
 
+@media (min-width: 1181px) {
+  .language-trigger {
+    border-radius: 999px !important;
+    box-shadow:
+      0 10px 28px rgba(0, 0, 0, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.14);
+    backdrop-filter: blur(16px) saturate(145%);
+    -webkit-backdrop-filter: blur(16px) saturate(145%);
+  }
+}
+
 .language-menu {
   position: absolute;
   z-index: 40;
@@ -1624,10 +1635,6 @@ p {
   min-height: 52px;
   padding: 12px 24px;
   font-size: 1.02rem;
-}
-
-.hero-bottom-start {
-  display: none;
 }
 
 .hero-directory {
@@ -3613,7 +3620,9 @@ a.vehicle-card:hover .vehicle-card-media img {
 
 .reasons::before {
   position: absolute;
-  z-index: 4;
+  /* Keep the divider below the measured SVG route so its travelling light
+     remains visible after turning right beneath the phone. */
+  z-index: 1;
   top: 0;
   left: 0;
   width: 100%;
@@ -5481,52 +5490,6 @@ a.vehicle-card:hover .vehicle-card-media img {
 
   .hero-actions > .button {
     display: inline-flex;
-  }
-
-  .hero-bottom-start {
-    position: absolute;
-    z-index: 3;
-    right: 0;
-    bottom: 18px;
-    left: 0;
-    display: inline-flex;
-    width: 100%;
-    min-height: 44px;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    color: var(--white);
-    font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    line-height: 1;
-    text-decoration: none;
-  }
-
-  .hero-bottom-start svg {
-    width: 18px;
-    height: 18px;
-    fill: none;
-    stroke: currentColor;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-width: 1.8;
-    animation: hero-start-arrow 1.6s ease-in-out infinite;
-  }
-
-  .js .hero-copy.is-visible > .hero-bottom-start {
-    animation: none;
-  }
-
-  @keyframes hero-start-arrow {
-    0%,
-    100% {
-      transform: translateY(-2px);
-    }
-
-    50% {
-      transform: translateY(3px);
-    }
   }
 
   .hero-directory-list {

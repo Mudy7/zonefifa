@@ -977,8 +977,9 @@ function layoutPageRoutes() {
       x: phoneBottom.x,
       y: dividerTop.y,
     };
+    const dividerRight = routeAnchor(reasonsSection, mainRect, 1, 0);
     const points = directRoutePoints(start, phoneTop, 0.54);
-    points.push(phoneBottom, dividerEnd);
+    points.push(phoneBottom, dividerEnd, dividerRight);
     setPageRoute(
       "stores-phone",
       points,
