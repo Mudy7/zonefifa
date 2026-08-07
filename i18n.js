@@ -140,8 +140,8 @@
     ],
     ["Vérifiez avant de choisir", "Check before you choose"],
     [
-      "Inspectez l’état et faites correspondre le numéro de châssis aux documents. Pour un véhicule importé, demandez la déclaration en douane et le BFU avant de payer.",
-      "Inspect its condition and match the chassis number to the documents. For an imported vehicle, request the customs declaration and BFU before paying.",
+      "Inspectez le véhicule et vérifiez que son numéro de châssis correspond aux documents remis par le vendeur.",
+      "Inspect the vehicle and check that its chassis number matches the documents provided by the seller.",
     ],
     ["Concluez l’achat", "Complete the purchase"],
     [
