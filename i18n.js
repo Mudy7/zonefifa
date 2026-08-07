@@ -448,7 +448,7 @@
 
   const pageMetadata = {
     fr: {
-      title: "Parc Zone FIFA à Ekpè | Accès, vendeurs et véhicules",
+      title: "Parc Zone FIFA - Le centre de véhicules d’occasion au Bénin",
       description:
         "Découvrez le Parc Zone FIFA à Ekpè, près de Cotonou : véhicules d’occasion importés, plusieurs vendeurs, stock en ligne et itinéraire.",
       socialDescription:
@@ -461,7 +461,7 @@
       placeName: "Ekpè, Sèmè-Kpodji, Bénin",
     },
     en: {
-      title: "Parc Zone FIFA in Ekpè | Location, sellers and vehicles",
+      title: "Parc Zone FIFA - Benin’s used vehicle center",
       description:
         "Discover Parc Zone FIFA in Ekpè, near Cotonou: imported used cars, multiple sellers, online inventory and directions.",
       socialDescription:
