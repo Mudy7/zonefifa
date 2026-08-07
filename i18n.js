@@ -184,6 +184,36 @@
     ["La page du véhicule s’ouvre immédiatement.", "The vehicle page opens immediately."],
     ["Emplacement du véhicule", "Vehicle location"],
     ["Pourquoi Zone FIFA ?", "Why Zone FIFA?"],
+    ["Achat sécurisé", "A secure purchase"],
+    [
+      "Nous encadrons les étapes essentielles de la transaction pour vous permettre d’acheter en toute sérénité.",
+      "We guide you through the key stages of the transaction so you can buy with peace of mind.",
+    ],
+    ["Des véhicules à examiner sur place", "Vehicles you can inspect on site"],
+    [
+      "Découvrez les véhicules directement au parc, comparez-les et prenez le temps de vérifier celui qui vous convient.",
+      "View vehicles directly at the park, compare them and take the time to inspect the one that suits you.",
+    ],
+    ["Transparence et confiance", "Transparency and trust"],
+    [
+      "Accédez à des informations claires pour comparer les véhicules et prendre une décision éclairée.",
+      "Get clear information to compare vehicles and make an informed decision.",
+    ],
+    ["Conseils adaptés à vos besoins", "Guidance tailored to your needs"],
+    [
+      "Partagez votre budget et vos critères pour être orienté vers les véhicules qui vous correspondent.",
+      "Share your budget and preferences to be guided towards vehicles that suit your needs.",
+    ],
+    ["Accompagnement administratif", "Administrative guidance"],
+    [
+      "Nous vous orientons dans les démarches et les documents nécessaires pour finaliser votre achat.",
+      "We guide you through the procedures and documents needed to complete your purchase.",
+    ],
+    ["Un parc accessible et sécurisé", "An accessible and secure vehicle park"],
+    [
+      "Visitez nos véhicules dans un espace organisé à Ekpè–Djèffa, près de Cotonou.",
+      "Visit our vehicles in an organized space in Ekpè–Djèffa, near Cotonou.",
+    ],
     [
       "Vue panoramique des véhicules au Parc Zone FIFA",
       "Panoramic view of vehicles at Parc Zone FIFA",

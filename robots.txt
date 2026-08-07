@@ -1,2 +1,4 @@
 User-agent: *
 Allow: /
+
+Sitemap: https://zonefifa.com/sitemap.xml
