@@ -5525,12 +5525,6 @@ a.vehicle-card:hover .vehicle-card-media img {
         rgb(0 122 252 / 0) 100%
       ),
       radial-gradient(
-        ellipse 150px 1.5px at var(--hero-directory-flow-x, -10%) 50%,
-        rgb(0 122 252 / var(--hero-directory-horizontal-alpha, 0)) 0%,
-        rgb(0 122 252 / var(--hero-directory-horizontal-mid-alpha, 0)) 45%,
-        rgb(0 122 252 / 0) 100%
-      ),
-      radial-gradient(
         ellipse 150px 1.5px at var(--hero-directory-flow-x, -10%) 100%,
         rgb(0 122 252 / var(--hero-directory-horizontal-alpha, 0)) 0%,
         rgb(0 122 252 / var(--hero-directory-horizontal-mid-alpha, 0)) 45%,
